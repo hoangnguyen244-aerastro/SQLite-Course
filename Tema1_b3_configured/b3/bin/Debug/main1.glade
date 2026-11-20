@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkListStore" id="liststore1">
     <columns>
+      <!-- column-name guint -->
       <column type="guint"/>
+      <!-- column-name gchararray -->
       <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">Задание 3 — Работа с таблицами в Glade</property>
     <property name="default_width">600</property>
     <property name="default_height">320</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">6</property>
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Пример</property>
           </object>
           <packing>
@@ -36,7 +42,9 @@
                 <property name="title" translatable="yes">Столбец 1</property>
                 <child>
                   <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                  <attributes><attribute name="text">0</attribute></attributes>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
                 </child>
               </object>
             </child>
@@ -45,7 +53,9 @@
                 <property name="title" translatable="yes">Столбец 2</property>
                 <child>
                   <object class="GtkCellRendererText" id="cellrenderertext2"/>
-                  <attributes><attribute name="text">1</attribute></attributes>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
                 </child>
               </object>
             </child>
@@ -58,8 +68,10 @@
         </child>
         <child>
           <object class="GtkButton" id="button1">
-            <property name="visible">True</property>
             <property name="label" translatable="yes">Закрыть</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="receives_default">False</property>
             <signal name="clicked" handler="on_button1_clicked" swapped="no"/>
           </object>
           <packing>
