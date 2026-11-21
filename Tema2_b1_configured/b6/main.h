@@ -6,7 +6,7 @@
 #include <sqlite3.h>
 #include "table.h"
 
-GtkWidget   *window1, *window2;
-GtkBuilder  *builder1, *builder2;
+extern GtkWidget *window1, *window2;
+extern GtkBuilder *builder1, *builder2;
 
 #endif // MAIN_H_INCLUDED
