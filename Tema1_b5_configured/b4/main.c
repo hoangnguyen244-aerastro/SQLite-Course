@@ -4,6 +4,7 @@
  Таблица «Сотрудники» из пяти полей
 ********************************************/
 #include <stdlib.h>
+#include <string.h>
 #include <gtk/gtk.h>
 #include "sqlite3.h"
 
