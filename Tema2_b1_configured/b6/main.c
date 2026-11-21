@@ -4,6 +4,9 @@
 **************************************************/
 #include "main.h"
 
+GtkWidget *window1 = NULL, *window2 = NULL;
+GtkBuilder *builder1 = NULL, *builder2 = NULL;
+
 static int ShowGladeError(void)
 {
     GtkWidget *dialog = gtk_message_dialog_new(
