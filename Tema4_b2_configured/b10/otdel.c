@@ -58,11 +58,8 @@ int LoadCombobox1(void)
     }
     if (result != SQLITE_DONE) goto fail;
     sqlite3_finalize(q);
-    /* Preserve legacy values not listed among current employees. */
-    if (selected < 0 && BossName[0]) {
-        gtk_combo_box_text_append_text(gBossCombo, BossName);
-        selected = index;
-    }
+    /* An outdated surname is not an employee: leave selection empty.
+       SaveRecord1() requires the user to select a current employee. */
     gtk_combo_box_set_active(GTK_COMBO_BOX(gBossCombo), selected);
     return 0;
 fail:
