@@ -42,6 +42,7 @@
 			<Add directory="C:/Prog/CodeBlocks2/Gtk/lib/gtk-3.0/include" />
 			<Add directory="C:/Prog/CodeBlocks2/Gtk/include/atk-1.0" />
 			<Add directory="C:/Prog/CodeBlocks2/Gtk/include/gdk-pixbuf-2.0" />
+			<Add directory="C:/Prog/CodeBlocks2/SQLite" />
 		</Compiler>
 		<Linker>
 			<Add library="gtk-win32-3.0" />
