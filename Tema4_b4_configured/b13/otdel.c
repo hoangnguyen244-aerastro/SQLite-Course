@@ -7,6 +7,8 @@ static GtkEntry *gOtdel = NULL;
 GtkComboBoxText *gBossCombo = NULL;
 static char BossName[1000] = "";
 static GtkImage *gDeptImage = NULL;
+static GtkCalendar *gDeptCalendar = NULL;
+static gboolean gDateDefined = FALSE;
 static gchar *CurFoto = NULL;
 static int CurOtdel = 0;
 
@@ -16,7 +18,7 @@ int LoadRecord1(int otdel)
     int result;
 
     result = sqlite3_prepare_v2(db,
-        "SELECT Отдел, Руководитель, Фото FROM Отделы WHERE [Код отдела]=?",
+        "SELECT Отдел, Руководитель, Фото, [Дата основания] FROM Отделы WHERE [Код отдела]=?",
         -1, &q, NULL);
     if (result != SQLITE_OK) goto fail;
     sqlite3_bind_int(q, 1, otdel);
@@ -34,6 +36,14 @@ int LoadRecord1(int otdel)
         gtk_image_set_from_file(gDeptImage, CurFoto);
     else
         gtk_image_clear(gDeptImage);
+    const unsigned char *date = sqlite3_column_text(q, 3);
+    int year = 0, month = 0, day = 0;
+    gDateDefined = date && sscanf((const char *)date, "%d-%d-%d", &year, &month, &day) == 3
+        && year >= 1 && month >= 1 && month <= 12 && day >= 1 && day <= 31;
+    if (gDateDefined) {
+        gtk_calendar_select_month(gDeptCalendar, (guint)(month - 1), (guint)year);
+        gtk_calendar_select_day(gDeptCalendar, (guint)day);
+    }
     sqlite3_finalize(q);
     return 0;
 
@@ -100,13 +110,22 @@ int SaveRecord1(void)
         return 1;
     }
     result = sqlite3_prepare_v2(db,
-        "UPDATE Отделы SET Отдел=?, Руководитель=?, Фото=? WHERE [Код отдела]=?",
+        "UPDATE Отделы SET Отдел=?, Руководитель=?, Фото=?, [Дата основания]=? WHERE [Код отдела]=?",
         -1, &q, NULL);
     if (result != SQLITE_OK) goto fail;
     sqlite3_bind_text(q, 1, department, -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(q, 2, manager, -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(q, 3, CurFoto ? CurFoto : "", -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(q, 4, CurOtdel);
+    if (gDateDefined) {
+        guint year, month, day;
+        char date[16];
+        gtk_calendar_get_date(gDeptCalendar, &year, &month, &day);
+        g_snprintf(date, sizeof(date), "%04u-%02u-%02u", year, month + 1, day);
+        sqlite3_bind_text(q, 4, date, -1, SQLITE_TRANSIENT);
+    } else {
+        sqlite3_bind_null(q, 4);
+    }
+    sqlite3_bind_int(q, 5, CurOtdel);
     result = sqlite3_step(q);
     if (result != SQLITE_DONE) goto fail;
     sqlite3_finalize(q);
@@ -174,6 +193,19 @@ G_MODULE_EXPORT void on_button16_clicked(GtkButton *button, gpointer user_data)
     gtk_image_clear(gDeptImage);
 }
 
+G_MODULE_EXPORT void on_calendar_otdel_day_selected(GtkCalendar *calendar, gpointer user_data)
+{
+    (void)calendar; (void)user_data;
+    gDateDefined = TRUE;
+}
+
+/* Explicit opt-out allows the NULL date to survive editing and reopening. */
+G_MODULE_EXPORT void on_button17_clicked(GtkButton *button, gpointer user_data)
+{
+    (void)button; (void)user_data;
+    gDateDefined = FALSE;
+}
+
 void ShowOtdel(int otdel)
 {
     GError *error = NULL;
@@ -192,7 +224,8 @@ void ShowOtdel(int otdel)
     gOtdel = GTK_ENTRY(gtk_builder_get_object(b_otdel, "entry_otdel"));
     gBossCombo = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(b_otdel, "comboboxtext2"));
     gDeptImage = GTK_IMAGE(gtk_builder_get_object(b_otdel, "image_otdel"));
-    if (!w_otdel || !gOtdel || !gBossCombo || !gDeptImage) {
+    gDeptCalendar = GTK_CALENDAR(gtk_builder_get_object(b_otdel, "calendar_otdel"));
+    if (!w_otdel || !gOtdel || !gBossCombo || !gDeptImage || !gDeptCalendar) {
         g_snprintf(str, sizeof(str), "Не найдены виджеты формы w_otdel.");
         ShowError();
         g_object_unref(b_otdel);
@@ -200,7 +233,7 @@ void ShowOtdel(int otdel)
         return;
     }
     gtk_window_set_title(GTK_WINDOW(w_otdel), "Ввод отдела");
-    gtk_window_set_default_size(GTK_WINDOW(w_otdel), 690, 350);
+    gtk_window_set_default_size(GTK_WINDOW(w_otdel), 730, 510);
     gtk_window_set_position(GTK_WINDOW(w_otdel), GTK_WIN_POS_CENTER);
     if (window3) gtk_window_set_transient_for(GTK_WINDOW(w_otdel), GTK_WINDOW(window3));
     gtk_window_set_modal(GTK_WINDOW(w_otdel), TRUE);

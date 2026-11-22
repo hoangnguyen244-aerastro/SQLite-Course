@@ -1,5 +1,5 @@
 /****************************************************************
-Урок 4.4
+Урок 4.5
 Пример b10 - форма ввода реализована для таблицы "Сотрудники"
 
 Задание:
@@ -27,7 +27,7 @@ void StartDB()
     sqlite3_stmt *q = NULL;
     int has_photo = 0;
     int result;
-    if (sqlite3_open("b12.db", &db) != SQLITE_OK) {
+    if (sqlite3_open("b13.db", &db) != SQLITE_OK) {
         g_snprintf(str, sizeof(str), "Ошибка открытия БД: %s", sqlite3_errmsg(db));
         ShowError();
         return;
@@ -51,6 +51,29 @@ void StartDB()
     }
     if (!has_photo && sqlite3_exec(db, "ALTER TABLE Отделы ADD COLUMN Фото TEXT", NULL, NULL, NULL) != SQLITE_OK) {
         g_snprintf(str, sizeof(str), "Ошибка добавления поля Фото: %s", sqlite3_errmsg(db));
+        ShowError();
+    }
+    /* Add a founding date in ISO 8601 format (YYYY-MM-DD). */
+    q = NULL;
+    int has_date = 0;
+    result = sqlite3_prepare_v2(db, "PRAGMA table_info(Отделы)", -1, &q, NULL);
+    if (result != SQLITE_OK) {
+        g_snprintf(str, sizeof(str), "Ошибка проверки даты: %s", sqlite3_errmsg(db));
+        ShowError();
+        return;
+    }
+    while ((result = sqlite3_step(q)) == SQLITE_ROW) {
+        const unsigned char *column = sqlite3_column_text(q, 1);
+        if (column && strcmp((const char *)column, "Дата основания") == 0) has_date = 1;
+    }
+    sqlite3_finalize(q);
+    if (result != SQLITE_DONE) {
+        g_snprintf(str, sizeof(str), "Ошибка чтения даты: %s", sqlite3_errmsg(db));
+        ShowError();
+        return;
+    }
+    if (!has_date && sqlite3_exec(db, "ALTER TABLE Отделы ADD COLUMN [Дата основания] TEXT", NULL, NULL, NULL) != SQLITE_OK) {
+        g_snprintf(str, sizeof(str), "Ошибка добавления даты: %s", sqlite3_errmsg(db));
         ShowError();
     }
 }
