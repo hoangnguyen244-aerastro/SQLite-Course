@@ -469,6 +469,8 @@
         <child>
           <object class="GtkFixed" id="fixed_otdel">
             <property name="visible">True</property>
+            <property name="height_request">280</property>
+            <property name="width_request">650</property>
             <child>
               <object class="GtkLabel" id="label_otdel_name">
                 <property name="visible">True</property>
@@ -498,6 +500,30 @@
                 <property name="width_request">230</property>
               </object>
               <packing><property name="x">155</property><property name="y">95</property></packing>
+            </child>
+            <child>
+              <object class="GtkImage" id="image_otdel">
+                <property name="visible">True</property>
+                <property name="width_request">180</property>
+                <property name="height_request">160</property>
+              </object>
+              <packing><property name="x">430</property><property name="y">15</property></packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button15">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Выбрать фото</property>
+                <signal name="clicked" handler="on_button15_clicked" swapped="no"/>
+              </object>
+              <packing><property name="x">435</property><property name="y">190</property></packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button16">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Удалить фото</property>
+                <signal name="clicked" handler="on_button16_clicked" swapped="no"/>
+              </object>
+              <packing><property name="x">435</property><property name="y">230</property></packing>
             </child>
           </object>
           <packing>
