@@ -50,6 +50,7 @@
 			<Add library="pango-1.0" />
 			<Add library="cairo" />
 			<Add library="gdk-3" />
+			<Add library="gdk_pixbuf-2.0" />
 			<Add library="gobject-2.0" />
 			<Add library="glib-2.0" />
 			<Add library="C:/Prog/CodeBlocks2/SQLite/libsqlite3.a" />
