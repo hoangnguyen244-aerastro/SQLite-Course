@@ -206,6 +206,13 @@ G_MODULE_EXPORT void on_button17_clicked(GtkButton *button, gpointer user_data)
     gDateDefined = FALSE;
 }
 
+G_MODULE_EXPORT void on_button18_clicked(GtkButton *button, gpointer user_data)
+{
+    (void)button; (void)user_data;
+    /* Printing uses the saved database row. Save the form first if it was edited. */
+    PrintCurrentDepartment(CurOtdel, GTK_WINDOW(w_otdel));
+}
+
 void ShowOtdel(int otdel)
 {
     GError *error = NULL;

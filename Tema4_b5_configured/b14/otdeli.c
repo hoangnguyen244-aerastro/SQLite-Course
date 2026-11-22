@@ -1,4 +1,4 @@
-/* Tema 4, task 1: department list and record form integration. */
+/* Tema 4, tasks 1–5: department list, edit form and printing. */
 #include "main.h"
 
 static GtkListStore *buffer2 = NULL;
@@ -150,6 +150,12 @@ G_MODULE_EXPORT void on_button10_clicked(GtkButton *button, gpointer user_data)
 fail:
     department_sql_error("Ошибка удаления");
     if (q) sqlite3_finalize(q);
+}
+
+G_MODULE_EXPORT void on_button19_clicked(GtkButton *button, gpointer user_data)
+{
+    (void)button; (void)user_data;
+    PrintAllDepartments(GTK_WINDOW(window3));
 }
 
 G_MODULE_EXPORT void on_button11_clicked(GtkButton *button, gpointer user_data)

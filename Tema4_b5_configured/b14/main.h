@@ -27,6 +27,8 @@ extern int lenstr;
 /* Tema 4, task 2: selector for manager surname. */
 extern GtkComboBoxText *gBossCombo;
 
+void PrintCurrentDepartment(int department_id, GtkWindow *parent);
+void PrintAllDepartments(GtkWindow *parent);
 void StartDB(void);
 void EndDB(void);
 void ShowError(void);

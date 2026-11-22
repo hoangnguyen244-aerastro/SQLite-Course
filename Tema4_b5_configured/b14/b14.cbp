@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="b13" />
+		<Option title="b14" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/b13" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/b14" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin/Debug/" />
 				<Option object_output="obj/Debug/" />
 				<Option type="0" />
@@ -17,7 +17,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/b13" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/b14" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -67,6 +67,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="sotrudnik.h" />
+		<Unit filename="print_departments.c"><Option compilerVar="CC" /></Unit>
 		<Unit filename="sotrudniki.c">
 			<Option compilerVar="CC" />
 		</Unit>
