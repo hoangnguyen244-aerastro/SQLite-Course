@@ -2502,3 +2502,37 @@
 1795355818 source:c:\work\tema4\b10\sotrudniki.c
 	"main.h"
 
+1795360149 source:c:\work\tema4_b2\b10\main.c
+	"main.h"
+
+1795360149 c:\work\tema4_b2\b10\main.h
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<gtk/gtk.h>
+	<sqlite3.h>
+	"sotrudniki.h"
+	"sotrudnik.h"
+	"otdeli.h"
+	"otdel.h"
+
+1795360149 c:\work\tema4_b2\b10\sotrudniki.h
+
+1795360149 c:\work\tema4_b2\b10\sotrudnik.h
+
+1795360149 c:\work\tema4_b2\b10\otdeli.h
+
+1795360149 c:\work\tema4_b2\b10\otdel.h
+
+1795360149 source:c:\work\tema4_b2\b10\otdel.c
+	"main.h"
+
+1795360149 source:c:\work\tema4_b2\b10\otdeli.c
+	"main.h"
+
+1795360149 source:c:\work\tema4_b2\b10\sotrudnik.c
+	"main.h"
+
+1795360149 source:c:\work\tema4_b2\b10\sotrudniki.c
+	"main.h"
+
