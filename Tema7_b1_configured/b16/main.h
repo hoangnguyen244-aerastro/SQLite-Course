@@ -7,6 +7,7 @@
 #include <string.h>
 #include <math.h>
 #include "tovar.h"
+#include "tovar_extra.h"
 #include "tovari.h"
 #include "prih.h"
 #include "prih_stroki.h"

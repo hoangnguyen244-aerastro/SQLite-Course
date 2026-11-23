@@ -308,6 +308,12 @@ G_MODULE_EXPORT void on_button15_clicked (GtkButton *button, gpointer label)
 }
 
 
+static void on_extra_tovar(GtkButton *button,gpointer user_data)
+{
+    (void)button;
+    OpenExtraTovar(GPOINTER_TO_INT(user_data),GTK_WINDOW(wTovar));
+}
+
 // Вывод окна
 void ShowTovar(int tovar)
 {
@@ -326,6 +332,11 @@ void ShowTovar(int tovar)
     gtk_window_set_position(GTK_WINDOW(wTovar), GTK_WIN_POS_CENTER);
 
     gtk_builder_connect_signals (bTovar, NULL);
+    GtkWidget *extra_button = gtk_button_new_with_label("Цена и место хранения");
+    gtk_box_pack_start(GTK_BOX(gtk_builder_get_object(bTovar,"vbox4")),
+                       extra_button,FALSE,FALSE,4);
+    g_signal_connect(extra_button,"clicked",G_CALLBACK(on_extra_tovar),
+                     GINT_TO_POINTER(tovar));
 
     LoadRecord(tovar);
 

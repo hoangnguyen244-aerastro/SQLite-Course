@@ -81,6 +81,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="settings.h" />
+		<Unit filename="tovar_extra.c"><Option compilerVar="CC" /></Unit>
+		<Unit filename="tovar_extra.h" />
 		<Unit filename="tovar.c">
 			<Option compilerVar="CC" />
 		</Unit>
