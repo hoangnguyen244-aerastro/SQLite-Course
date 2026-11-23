@@ -9,6 +9,7 @@ import sys
 import tempfile
 import os
 from pathlib import Path
+from contextlib import closing
 
 TABLES = ("Клиенты", "Услуги", "Заказы", "Позиции заказа")
 
@@ -17,7 +18,7 @@ def validate(db_path):
     if not path.is_file():
         raise FileNotFoundError(path)
     # mode=ro avoids silently creating a database for a mistyped path.
-    with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as connection:
+    with closing(sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)) as connection:
         integrity = connection.execute("PRAGMA integrity_check").fetchone()[0]
         if integrity != "ok":
             raise ValueError(f"integrity_check failed: {integrity}")
@@ -48,8 +49,8 @@ def backup(source, dest, force=False):
     os.close(handle)
     tmp = Path(filename)
     try:
-        with sqlite3.connect(source.resolve().as_uri() + "?mode=ro", uri=True) as src:
-            with sqlite3.connect(tmp) as dst:
+        with closing(sqlite3.connect(source.resolve().as_uri() + "?mode=ro", uri=True)) as src:
+            with closing(sqlite3.connect(tmp)) as dst:
                 src.backup(dst)
         checked = validate(tmp)
         if checked != counts:
