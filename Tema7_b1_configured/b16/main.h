@@ -12,6 +12,7 @@
 #include "prih_stroki.h"
 #include "prih_stroka.h"
 #include "rash.h"
+#include "rash_editor.h"
 #include "settings.h"
 
 

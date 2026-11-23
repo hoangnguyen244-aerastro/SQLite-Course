@@ -51,6 +51,8 @@
 			<Add library="gtk-win32-3.0" />
 			<Add library="gobject-2.0" />
 			<Add library="glib-2.0" />
+			<Add library="cairo" />
+			<Add library="gdk-3" />
 			<Add directory="C:/Prog/CodeBlocks2/Gtk/lib" />
 		</Linker>
 		<Unit filename="main.c">
@@ -69,6 +71,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="prih_stroki.h" />
+		<Unit filename="rash_editor.c"><Option compilerVar="CC" /></Unit>
+		<Unit filename="rash_editor.h" />
 		<Unit filename="rash.c">
 			<Option compilerVar="CC" />
 		</Unit>

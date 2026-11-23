@@ -1,174 +1,70 @@
 #include "main.h"
-
-// Структуры данных для виджета
-GtkListStore        *buffer3;    // Буфер таблицы
-GtkTreeView         *table3;     // Таблица
-GtkTreeIter         iter3;
-
-// Обозначения полей
-enum
-{
-    C_ID_NAKL, C_NOMER, C_DATE, C_POSTAV, C_POKUP
-};
-
-
-// Загрузка таблицы из БД в буфер виджета
-int LoadRash()
-{
-
-    char* SQL = "SELECT [Код накладной], Номер, Дата FROM [Расходные накладные]";
-    // Готовим SQL-запрос к БД
-    if(sqlite3_prepare_v2(db, SQL, -1, &stmt, NULL) != SQLITE_OK)
-    {
-        sprintf(str, "Ошибка подготовки SQL-запроса: %s\n", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        return 3;
-    }
-
-    // Цикл по SQL-запросу и запись в буфер таблицы
-    while((rc = sqlite3_step(stmt)) == SQLITE_ROW)
-    {
-        gtk_list_store_append (buffer3, &iter3);
-        gtk_list_store_set (buffer3, &iter3,
-                            C_ID_NAKL, sqlite3_column_int(stmt, C_ID_NAKL),
-                            C_NOMER, sqlite3_column_int(stmt, C_NOMER),
-                            C_DATE,  sqlite3_column_text(stmt, C_DATE),
-                            -1);
-    }
-    if(rc != SQLITE_DONE)
-    {
-        sprintf(str, "Ошибка выполнения SQL-запроса: %s\n", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        return 4;
-    }
-
-    // Освобождаем строку запроса
-    sqlite3_finalize(stmt);
-    return 0;
+#include <time.h>
+/* Таблица расходных накладных и доступ к форме документа. */
+static GtkListStore *buffer3;
+static GtkTreeView *table3;
+enum {C_ID_NAKL,C_NOMER,C_DATE};
+static void rash_error(void){
+  GtkWidget *dlg=gtk_message_dialog_new(GTK_WINDOW(wRash),GTK_DIALOG_MODAL,
+       GTK_MESSAGE_ERROR,GTK_BUTTONS_CLOSE,"%s",sqlite3_errmsg(db));
+  gtk_dialog_run(GTK_DIALOG(dlg));gtk_widget_destroy(dlg);
 }
-
-// Добавить запись
-int AddItemRash ()
-{
-    char CurDate[80];
-
-    // Получение текущей даты
-    time_t rawtime;
-    struct tm * timeinfo;
-
-    time ( &rawtime );  // текущая дата в секундах
-    timeinfo = localtime ( &rawtime );
-    strftime(CurDate, 80, "%Y-%m-%d", timeinfo);
-
-    // Вставка новой записи в базу
-    char* SQL="INSERT INTO Накладные(Тип, Дата) VALUES (-1, ";
-    sprintf(str,"%s '%s')", SQL, CurDate);
-    ///ShowSQL(); // Тестовый вывод запроса
-    // Записываем в БД
-    if (sqlite3_exec(db, str, 0, 0, &err))
-    {
-        sprintf(str, "Ошибка выполнения SQL-запроса: %sn", err);
-        sqlite3_free(err);
-        return 1;
-    }
-    // Получение последней вставленной строки
-    char* SQL2 = "SELECT [Код накладной], Номер, Дата \
-                FROM Накладные    \
-                ORDER BY [Код накладной] DESC LIMIT 1";
-
-    // Готовим SQL-запрос к БД
-    if(sqlite3_prepare_v2(db, SQL2, -1, &stmt, NULL) != SQLITE_OK)
-    {
-        sprintf(str, "Ошибка подготовки SQL-запроса: %s\n", sqlite3_errmsg(db));
-        sqlite3_finalize(stmt);
-        return 3;
-    }
-
-    // Выполнение SQL-запроса и запись в буфер таблицы
-    rc = sqlite3_step(stmt);
-
-    gtk_list_store_append (buffer3, &iter3);
-    gtk_list_store_set (buffer3, &iter3,
-                            C_ID_NAKL, sqlite3_column_int(stmt, C_ID_NAKL),
-                            C_NOMER, sqlite3_column_int(stmt, C_NOMER),
-                            C_DATE,  sqlite3_column_text(stmt, C_DATE),
-                        -1);
-
-    // Освобождаем строку запроса
-    sqlite3_finalize(stmt);
-    return 0;
+static void refresh_rash(void){
+  sqlite3_stmt *st=NULL;
+  gtk_list_store_clear(buffer3);
+  if(sqlite3_prepare_v2(db,"SELECT [Код накладной],Номер,Дата "
+       "FROM [Расходные накладные] ORDER BY [Код накладной]",-1,&st,NULL)!=SQLITE_OK){
+      rash_error();return;
+  }
+  GtkTreeIter it;
+  while(sqlite3_step(st)==SQLITE_ROW){
+     const char *date=(const char*)sqlite3_column_text(st,2);
+     gtk_list_store_append(buffer3,&it);
+     gtk_list_store_set(buffer3,&it,0,sqlite3_column_int(st,0),
+         1,sqlite3_column_int(st,1),2,date?date:"",-1);
+  }
+  sqlite3_finalize(st);
 }
-
-// Удаление записи
-void DeleteItemRash ()
-{
-    GtkTreeModel *model = gtk_tree_view_get_model (table3);
-    GtkTreeSelection *selection = gtk_tree_view_get_selection (table3);
-
-    if (gtk_tree_selection_get_selected (selection, NULL, &iter3))
-    {
-        gint id_data;
-
-        // Получение кода сотрудника
-        gtk_tree_model_get (model, &iter3,
-                            C_ID_NAKL, &id_data,
-                            -1);
-
-        // Удаление строки из буфера
-        gtk_list_store_remove (GTK_LIST_STORE (model), &iter3);
-
-        // Удаление записи из БД
-        lenstr = 0;
-        lenstr+=sprintf(str, "DELETE FROM Накладные WHERE [Код накладной]=");
-        lenstr+=sprintf(str+lenstr, "%d", id_data);
-        lenstr+=sprintf(str+lenstr, ";");
-        ///ShowSQL(); // Тестовый вывод запроса
-        // Записываем в БД
-        if (sqlite3_exec(db, str, 0, 0, &err))
-        {
-            sprintf(str, "Ошибка выполнения SQL-запроса: %sn", err);
-            sqlite3_free(err);
-            return;
-        }
-    }
+G_MODULE_EXPORT void on_button13_clicked(GtkButton *btn,gpointer user){
+  (void)btn;(void)user;
+  GtkTreeModel *model=NULL;GtkTreeIter it;
+  GtkTreeSelection *sel=gtk_tree_view_get_selection(table3);
+  if(!gtk_tree_selection_get_selected(sel,&model,&it))return;
+  int id=0;gtk_tree_model_get(model,&it,C_ID_NAKL,&id,-1);
+  OpenRashDocument(id);refresh_rash();
 }
-
-
-// Кнопка Добавить
-G_MODULE_EXPORT void on_button17_clicked (GtkButton *button, gpointer label)
-{
-    AddItemRash ();
+G_MODULE_EXPORT void on_button17_clicked(GtkButton *btn,gpointer user){
+  (void)btn;(void)user;
+  sqlite3_stmt *st=NULL;
+  if(sqlite3_prepare_v2(db,"INSERT INTO Накладные(Тип,Дата,Номер,Сумма) "
+      "VALUES(0,date('now'),0,0)",-1,&st,NULL)!=SQLITE_OK){rash_error();return;}
+  int ok=sqlite3_step(st)==SQLITE_DONE;
+  sqlite3_finalize(st);
+  if(!ok){rash_error();return;}
+  int id=(int)sqlite3_last_insert_rowid(db);
+  OpenRashDocument(id);refresh_rash();
 }
-
-// Кнопка Удалить
-G_MODULE_EXPORT void on_button18_clicked (GtkButton *button, gpointer label)
-{
-    DeleteItemRash ();
+G_MODULE_EXPORT void on_button18_clicked(GtkButton *btn,gpointer user){
+  (void)btn;(void)user;
+  GtkTreeModel *model=NULL;GtkTreeIter it;
+  GtkTreeSelection *sel=gtk_tree_view_get_selection(table3);
+  if(!gtk_tree_selection_get_selected(sel,&model,&it))return;
+  int id=0;gtk_tree_model_get(model,&it,C_ID_NAKL,&id,-1);
+  if(!DeleteRashDocument(id))rash_error();
+  refresh_rash();
 }
-
-// Кнопка Закрыть
-G_MODULE_EXPORT void on_button19_clicked (GtkButton *button, gpointer label)
-{
-    gtk_widget_destroy (wRash);
+G_MODULE_EXPORT void on_button19_clicked(GtkButton *btn,gpointer user){
+ (void)btn;(void)user;gtk_widget_destroy(wRash);
 }
-
-// Вывод таблицы
-void ShowRash()
-{
-    builder_rash = gtk_builder_new ();
-    gtk_builder_add_from_file (builder_rash, "main.glade", NULL);
-    wRash = GTK_WIDGET(gtk_builder_get_object(builder_rash, "w_rash"));
-    buffer3 =  GTK_LIST_STORE(gtk_builder_get_object(builder_rash, "liststore3"));
-    table3 =  GTK_TREE_VIEW(gtk_builder_get_object(builder_rash, "treeview3"));
-
-    gtk_window_set_default_size (GTK_WINDOW (wRash), 700, 300);
-    gtk_window_set_position(GTK_WINDOW(wRash), GTK_WIN_POS_CENTER);
-
-    gtk_builder_connect_signals (builder_rash, NULL);
-
-    if(LoadRash())
-    {
-        ShowError();
-    }
-    gtk_widget_show_all(wRash);
+void ShowRash(void){
+  builder_rash=gtk_builder_new();
+  if(!gtk_builder_add_from_file(builder_rash,"main.glade",NULL)){ShowGladeError();return;}
+  wRash=GTK_WIDGET(gtk_builder_get_object(builder_rash,"w_rash"));
+  buffer3=GTK_LIST_STORE(gtk_builder_get_object(builder_rash,"liststore3"));
+  table3=GTK_TREE_VIEW(gtk_builder_get_object(builder_rash,"treeview3"));
+  gtk_window_set_default_size(GTK_WINDOW(wRash),750,420);
+  gtk_window_set_position(GTK_WINDOW(wRash),GTK_WIN_POS_CENTER);
+  gtk_builder_connect_signals(builder_rash,NULL);
+  refresh_rash();
+  gtk_widget_show_all(wRash);
 }
