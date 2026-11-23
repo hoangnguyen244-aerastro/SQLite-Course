@@ -2,6 +2,8 @@
 import sqlite3
 import tempfile
 import unittest
+import subprocess
+import sys
 from pathlib import Path
 from deploy_sqlite import backup, validate
 
@@ -37,6 +39,29 @@ class DeploymentTests(unittest.TestCase):
             db.execute('INSERT INTO "Заказы" VALUES(2,999)')
         with self.assertRaises(ValueError):
             validate(self.src)
+
+    def test_cli_verify_deploy_backup_restore(self):
+        tool = Path(__file__).with_name("deploy_sqlite.py")
+        deployed = self.root / "deployed" / "result.db"
+        backed_up = self.root / "backups" / "result.db"
+        restored = self.root / "restored" / "result.db"
+        for args in [
+            ["verify", str(self.src)],
+            ["deploy", str(self.src), str(deployed)],
+            ["backup", str(deployed), str(backed_up)],
+            ["restore", str(backed_up), str(restored)],
+            ["verify", str(restored)],
+        ]:
+            run = subprocess.run(
+                [sys.executable, str(tool), *args],
+                capture_output=True, text=True, encoding="utf-8", errors="replace",
+            )
+            self.assertEqual(run.returncode, 0, run.stdout + "\n" + run.stderr)
+        self.assertEqual(validate(restored)["Клиенты"], 1)
+
+    def test_missing_database_rejected(self):
+        with self.assertRaises(FileNotFoundError):
+            validate(self.root / "does_not_exist.db")
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
